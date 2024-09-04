@@ -10,7 +10,6 @@ function App() {
 
   return (
     <>
-      <h1>Game Time</h1>
       <Header /> 
       <PlayerInput /> 
       <PlayerDisplay />
