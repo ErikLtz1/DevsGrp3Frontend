@@ -1,0 +1,13 @@
+td {
+    margin: 20px;
+}
+
+table {
+    width: 100%;
+}
+
+.scoreboardDiv {
+    width: 20vw;
+    text-align: center;
+    background-color: darkgrey;
+}
