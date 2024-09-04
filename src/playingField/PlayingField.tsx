@@ -11,7 +11,8 @@ interface Player {
     playerNumber : number
     shooter : boolean
     colour : string
-    position : string
+    x: string,
+    y: string,
     active : boolean
     score : number
   }
@@ -24,7 +25,8 @@ function PlayingField() {
     playerNumber : 1,
     shooter : true,
     colour : "blue",
-    position : "0, 10",
+    x: "0",
+    y: "",
     active : true,
     score : 0
   })
@@ -33,7 +35,8 @@ function PlayingField() {
     playerNumber : 2,
     shooter : false,
     colour : "red",
-    position : "19, 4",
+    x: "19",
+    y: "4",
     active : true,
     score : 0
   })
@@ -42,7 +45,8 @@ function PlayingField() {
     playerNumber : 3,
     shooter : true,
     colour : "green",
-    position : "19, 10",
+    x: "19",
+    y: "10",
     active : true,
     score : 0
   })
@@ -51,7 +55,8 @@ function PlayingField() {
     playerNumber : 4,
     shooter : true,
     colour : "yellow",
-    position : "19, 16",
+    x: "19",
+    y: "14",
     active : true,
     score : 0
   })
@@ -76,15 +81,14 @@ function PlayingField() {
 
 
   function getColour(x: number, y: number) {
-    console.log(player1.position, player1.colour, x, y)
-    if (player1.position === x + ", " + y) {
-      console.log(player1.position, player1.colour, x, y)
+
+    if (player1.x + ", " + player1.y === x + ", " + y) {
       return player1.colour;
-    } else if (player2.position === x + ", " + y) {
+    } else if (player2.x + ", " + player2.y === x + ", " + y) {
       return player2.colour;
-    } else if (player3.position === x + ", " + y) {
+    } else if (player3.x + ", " + player3.y === x + ", " + y) {
       return player3.colour;
-    } else if (player4.position === x + ", " + y) {
+    } else if (player4.x + ", " + player4.y === x + ", " + y) {
       return player4.colour;
     } else {
       return "darkgrey";

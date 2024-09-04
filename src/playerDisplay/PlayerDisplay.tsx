@@ -1,7 +1,21 @@
+import { Client } from "@stomp/stompjs";
 import "./playerList.css";
+import { useEffect } from "react";
+
+interface Props {
+  stompClient: Client | null
+}
 
 
-function PlayerDisplay() {
+function PlayerDisplay(props: Props) {
+
+  useEffect(() => {
+    props.stompClient?.subscribe("/destroy/players", (playerList) => {
+      const players = JSON.parse(playerList.body)
+      console.log("here: " + players)
+    } )
+  }, [])
+
   return (
     <ul className="playerList">
       <li className="player1">
