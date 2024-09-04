@@ -1,0 +1,17 @@
+.playerList {
+    list-style: none;
+    display: flex;
+    width: 75%;
+    flex-direction: row;
+}
+
+li {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 20px;
+}
+
+h3 {
+    margin-left: 5px;
+}

@@ -10,12 +10,13 @@ function App() {
 
   return (
     <>
-      <h1>Game Time</h1>
       <Header /> 
       <PlayerInput /> 
-      <PlayerDisplay /> 
-      <PlayingField /> 
-      <Scoreboard /> 
+      <PlayerDisplay />
+      <div className="fieldAndScoreboardDiv">
+        <PlayingField /> 
+        <Scoreboard />   
+      </div> 
     </> 
   )
 }

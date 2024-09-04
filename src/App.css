@@ -40,3 +40,8 @@
 .read-the-docs {
   color: #888;
 }
+
+.fieldAndScoreboardDiv {
+  display: flex;
+  flex-direction: row;
+}

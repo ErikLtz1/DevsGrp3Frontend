@@ -1,0 +1,13 @@
+.playingFieldDiv {
+    width: 400px;
+    height: 400px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 20px;
+}
+
+.playingFieldOuterDiv {
+    background-color: grey;
+    margin-right: 50px;
+}

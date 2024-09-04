@@ -19,7 +19,7 @@ function PlayerInput() {
 
     const submitNewPlayer = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
-        const socket = new SockJS("http://localhost:8080/player");
+        const socket = new SockJS("http://localhost:8080/connect");
         const client = new Client({
           webSocketFactory: () => socket as any,
           reconnectDelay: 5000,
