@@ -74,7 +74,6 @@ function PlayingField(props: Props) {
       return "darkgrey";
     }
     
-
   }
 
   return (
