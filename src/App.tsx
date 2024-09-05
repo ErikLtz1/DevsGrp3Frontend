@@ -15,7 +15,11 @@ function App() {
 
   useEffect(() => {
        
-    const socket = new SockJS("http://localhost:8080/connect");
+    const socketUrl = process.env.NODE_ENV === 'development' 
+      ? "http://localhost:8080/connect" 
+      : "https://seahorse-app-hxd7g.ondigitalocean.app/connect";
+
+    const socket = new SockJS(socketUrl);
     const client = new Client({
       webSocketFactory: () => socket as WebSocket,
       reconnectDelay: 5000,
