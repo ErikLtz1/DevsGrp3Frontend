@@ -1,17 +1,6 @@
 import { Client } from '@stomp/stompjs';
 import { useState } from 'react';
 
-// interface Player {
-//     username : string
-//     playerNumber : number
-//     shooter : boolean
-//     colour : string
-//     x: number,
-//     y: number,
-//     active : boolean
-//     score : number
-//   }
-
   interface Props {
     stompClient: Client | null
   }
@@ -27,6 +16,8 @@ function PlayerInput(props: Props) {
           destination: "/app/new-player",
           body: username
         });
+        sessionStorage.setItem("username", username)
+        setUsername("");
       } else {
         console.log("no stomp client");
         

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import "./playingField.css"
 import { Client } from "@stomp/stompjs"
+import PlayerButtons from "./playerButtons/PlayerButtons"
 
 interface Cell {
   x: number
@@ -59,7 +60,6 @@ function PlayingField(props: Props) {
     setGridList(buildGridList)
   }
 
-
   function getColour(x: number, y: number) {
 
     if (players[0] && players[0].x + ", " + players[0].y === x + ", " + y) {
@@ -73,7 +73,6 @@ function PlayingField(props: Props) {
     } else {
       return "darkgrey";
     }
-    
   }
 
   return (
@@ -94,6 +93,7 @@ function PlayingField(props: Props) {
           </div>
         ))}
       </div>
+      <PlayerButtons stompClient={props.stompClient} />
     </div>
   )
 }
