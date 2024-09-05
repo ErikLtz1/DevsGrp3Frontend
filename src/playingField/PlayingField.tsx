@@ -1,60 +1,45 @@
 import { useEffect, useState } from "react"
 import "./playingField.css"
+import { Client } from "@stomp/stompjs"
 
 interface Cell {
   x: number
   y: number
 }
 
-interface Player {
-    username : string
-    playerNumber : number
-    shooter : boolean
-    colour : string
-    position : string
-    active : boolean
-    score : number
-  }
+interface Props {
+  stompClient: Client | null
+}
 
-function PlayingField() {
+interface Player {
+  username : string
+  playerNumber : number
+  shooter : boolean
+  colour : string
+  x: string,
+  y: string,
+  active : boolean
+  score : number
+}
+
+function PlayingField(props: Props) {
 
   const [gridList, setGridList] = useState<Cell[]>([])
-  const [player1, /*setPlayer1*/] = useState<Player>({
-    username : "",
-    playerNumber : 1,
-    shooter : true,
-    colour : "blue",
-    position : "0, 10",
-    active : true,
-    score : 0
-  })
-  const [player2, /*setPlayer2*/] = useState<Player>({
-    username : "",
-    playerNumber : 2,
-    shooter : false,
-    colour : "red",
-    position : "19, 4",
-    active : true,
-    score : 0
-  })
-  const [player3, /*setPlayer3*/] = useState<Player>({
-    username : "",
-    playerNumber : 3,
-    shooter : true,
-    colour : "green",
-    position : "19, 10",
-    active : true,
-    score : 0
-  })
-  const [player4, /* setPlayer4 */] = useState<Player>({
-    username : "",
-    playerNumber : 4,
-    shooter : true,
-    colour : "yellow",
-    position : "19, 16",
-    active : true,
-    score : 0
-  })
+  const [players, setPlayers] = useState<Player[]>([]);
+
+  useEffect(() => {
+    if (props.stompClient) {
+        const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
+        const playerList = JSON.parse(message.body);
+        console.log("Received players: ", playerList);
+        setPlayers(playerList); 
+      });
+      
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [props.stompClient])
 
   useEffect (() => {
     createGrid()
@@ -76,21 +61,19 @@ function PlayingField() {
 
 
   function getColour(x: number, y: number) {
-    console.log(player1.position, player1.colour, x, y)
-    if (player1.position === x + ", " + y) {
-      console.log(player1.position, player1.colour, x, y)
-      return player1.colour;
-    } else if (player2.position === x + ", " + y) {
-      return player2.colour;
-    } else if (player3.position === x + ", " + y) {
-      return player3.colour;
-    } else if (player4.position === x + ", " + y) {
-      return player4.colour;
+
+    if (players[0] && players[0].x + ", " + players[0].y === x + ", " + y) {
+      return players[0].colour;
+    } else if (players[1] && players[1].x + ", " + players[1].y === x + ", " + y) {
+      return players[1].colour;
+    } else if (players[2] && players[2].x + ", " + players[2].y === x + ", " + y) {
+      return players[2].colour;
+    } else if (players[3] && players[3].x + ", " + players[3].y === x + ", " + y) {
+      return players[3].colour;
     } else {
       return "darkgrey";
     }
     
-
   }
 
   return (

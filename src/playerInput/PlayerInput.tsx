@@ -1,43 +1,40 @@
 import { Client } from '@stomp/stompjs';
 import { useState } from 'react';
-import SockJS from 'sockjs-client';
 
 // interface Player {
 //     username : string
 //     playerNumber : number
 //     shooter : boolean
 //     colour : string
-//     position : string
+//     x: number,
+//     y: number,
 //     active : boolean
 //     score : number
 //   }
 
-function PlayerInput() {
+  interface Props {
+    stompClient: Client | null
+  }
+
+function PlayerInput(props: Props) {
 
     const [username, setUsername] = useState<string>("")
-    const [/*stompClient*/, setStompClient] = useState<Client | null>(null)
 
-    const submitNewPlayer = (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        const socket = new SockJS("http://localhost:8080/connect");
-        const client = new Client({
-          webSocketFactory: () => socket as any,
-          reconnectDelay: 5000,
-          onConnect: () => {
-            //sendNewPlayer()
-            console.log("Connection established");
-          },
-          onDisconnect: () => {
-            console.log("disconnected from websocket")
-          }
+    const sendNewPlayer = (e: { preventDefault: () => void; }) => {
+      e.preventDefault();
+      if (props.stompClient) {
+        props.stompClient.publish({
+          destination: "/app/new-player",
+          body: username
         });
-
-        client.activate();
-        setStompClient(client);
+      } else {
+        console.log("no stomp client");
+        
+      }
     }
 
   return (
-    <form onSubmit={submitNewPlayer}>
+    <form onSubmit={sendNewPlayer}>
         <label>Enter your username:</label>
         <input className='usernameInput' value={username} onChange={(e) => setUsername(e.target.value)}></input>
         <button type='submit'>Join Game</button>
