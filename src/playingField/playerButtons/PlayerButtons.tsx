@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 interface Props {
     stompClient: Client | null
+    localPlayer: string | null
   }
   
   interface Player {
@@ -19,7 +20,7 @@ interface Props {
 function PlayerButtons(props: Props) {
 
     const [players, setPlayers] = useState<Player[]>([]);
-    const [localPlayer, setLocalPlayer] = useState<string | null>("");
+    const [isActive] = useState<boolean>(false);
 
     useEffect(() => {
         if (props.stompClient) {
@@ -35,17 +36,17 @@ function PlayerButtons(props: Props) {
     }, [props.stompClient])
 
     useEffect(() => {
-        setLocalPlayer(sessionStorage.getItem("username"))
-    }, [players])
+        console.log("banana: ", props.localPlayer)
+    }, [props.localPlayer])
 
 
     function moveUp(): void {
 
-        if (localPlayer) {
+        if (props.localPlayer) {
             for (let player of players) {
-                if (localPlayer && localPlayer === player.username && player.y >= 1) {
+                if (props.localPlayer && props.localPlayer === player.username && player.y >= 1) {
                     player.y -= 1
-                    console.log(localPlayer, "up " + player.y)
+                    console.log(props.localPlayer, "up " + player.y)
                     console.log(players)
                     sendUpdatedPlayerList()
                 }
@@ -57,11 +58,11 @@ function PlayerButtons(props: Props) {
 
     function moveDown(): void {
 
-        if (localPlayer) {
+        if (props.localPlayer) {
             for (let player of players) {
-                if (localPlayer && localPlayer === player.username && player.y <= 18) {
+                if (props.localPlayer && props.localPlayer === player.username && player.y <= 18) {
                     player.y += 1
-                    console.log(localPlayer, "down " + player.y)
+                    console.log(props.localPlayer, "down " + player.y)
                     sendUpdatedPlayerList()
                 }
             }
@@ -82,8 +83,8 @@ function PlayerButtons(props: Props) {
 
   return (
     <div>
-        <button type='button' onClick={() => moveUp()}>Up</button>
-        <button type='button' onClick={() => moveDown()}>Down</button>
+        <button type='button' disabled={!isActive} onClick={() => moveUp()}>Up</button>
+        <button type='button' disabled={!isActive} onClick={() => moveDown()}>Down</button>
     </div>
   )
 }

@@ -27,13 +27,16 @@ function PlayingField(props: Props) {
 
   const [gridList, setGridList] = useState<Cell[]>([])
   const [players, setPlayers] = useState<Player[]>([]);
+  const [gameStart, setGameStart] = useState<boolean>(false)
+  const [localPlayer, setLocalPlayer] = useState<string | null>("");
 
   useEffect(() => {
     if (props.stompClient) {
         const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
         const playerList = JSON.parse(message.body);
         console.log("Received players: ", playerList);
-        setPlayers(playerList); 
+        setPlayers(playerList);      
+        
       });
       
       return () => {
@@ -45,6 +48,16 @@ function PlayingField(props: Props) {
   useEffect (() => {
     createGrid()
   }, [])
+
+  useEffect (() => {
+    gameStartFunction(players)
+  }, [players])
+  
+  useEffect (() => {
+    setLocalPlayer(sessionStorage.getItem("username"))
+    console.log("session: ", sessionStorage.getItem("username"))
+    console.log("here, ", gameStart)
+  }, [gameStart])
 
   const createGrid = () => {
     const gridSize = 20
@@ -75,25 +88,37 @@ function PlayingField(props: Props) {
     }
   }
 
+  const gameStartFunction = (players: any) => {
+    console.log(players.length)
+    if (players.length == 4) {
+      setGameStart(true)
+    } else {
+      console.log(players);
+    }
+  }
+
   return (
     <div className="playingFieldOuterDiv">
       <h2>Shooting Gallery</h2>
-      <div className="playingFieldDiv">
-        { gridList.map((cell: Cell, index) => (
-          <div 
-            key={index}
-            id={cell.x + ", " + cell.y}
-            className="cell"
-            style={{backgroundColor: getColour(cell.x, cell.y), 
-            width: "20px", 
-            height: "20px"}}
-            data-x = {cell.x}
-            data-y = {cell.y}
-          >
-          </div>
-        ))}
+        { gameStart ? <div >
+          5 4 3 2 1
+        </div> : null}
+        <div className="playingFieldDiv">
+          { gridList.map((cell: Cell, index) => (
+            <div 
+              key={index}
+              id={cell.x + ", " + cell.y}
+              className="cell"
+              style={{backgroundColor: getColour(cell.x, cell.y), 
+              width: "20px", 
+              height: "20px"}}
+              data-x = {cell.x}
+              data-y = {cell.y}
+            >
+            </div>
+          ))}
       </div>
-      <PlayerButtons stompClient={props.stompClient} />
+        <PlayerButtons stompClient={props.stompClient} localPlayer={localPlayer} />
     </div>
   )
 }
