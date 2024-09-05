@@ -25,7 +25,7 @@ function PlayerInput(props: Props) {
       if (props.stompClient) {
         props.stompClient.publish({
           destination: "/app/new-player",
-          body: JSON.stringify(username)
+          body: username
         });
       } else {
         console.log("no stomp client");

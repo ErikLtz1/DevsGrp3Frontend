@@ -26,7 +26,7 @@ function PlayingField() {
     shooter : true,
     colour : "blue",
     x: "0",
-    y: "",
+    y: "10",
     active : true,
     score : 0
   })
@@ -36,7 +36,7 @@ function PlayingField() {
     shooter : false,
     colour : "red",
     x: "19",
-    y: "4",
+    y: "5",
     active : true,
     score : 0
   })
@@ -56,7 +56,7 @@ function PlayingField() {
     shooter : true,
     colour : "yellow",
     x: "19",
-    y: "14",
+    y: "15",
     active : true,
     score : 0
   })

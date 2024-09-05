@@ -1,7 +1,41 @@
+import { Client } from "@stomp/stompjs"
 import "./scoreboard.css"
+import { useState, useEffect } from "react"
+
+interface Props {
+  stompClient: Client | null
+}
+
+interface Player {
+  username : string
+  playerNumber : number
+  shooter : boolean
+  colour : string
+  x: string,
+  y: string,
+  active : boolean
+  score : number
+}
+
+function Scoreboard(props: Props) {
+
+  const [players, setPlayers] = useState<Player[]>([]);
+
+  useEffect(() => {
+    if (props.stompClient) {
+        const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
+        const playerList = JSON.parse(message.body);
+        console.log("Received players: ", playerList);
+        setPlayers(playerList); 
+      });
+      
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [props.stompClient])
 
 
-function Scoreboard() {
   return (
     <div className="scoreboardDiv">
       <h2>Scoreboard</h2>
@@ -14,26 +48,19 @@ function Scoreboard() {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td style={{backgroundColor : 'blue', width : '40px', height : '40px'}}></td>
-            <td>David</td>
-            <td>1</td>
+        {players.map((player: Player, index: number) => (
+          <tr key={index}>
+            <td
+              style={{
+                backgroundColor: player.colour,
+                width: "40px",
+                height: "40px",
+              }}
+            ></td>
+            <td>{player.username}</td>
+            <td>{player.score}</td>
           </tr>
-          <tr>
-            <td style={{backgroundColor : 'red', width : '40px', height : '40px'}}></td>
-            <td>Erik</td>
-            <td>3</td>
-          </tr>
-          <tr>
-            <td style={{backgroundColor : 'green', width : '40px', height : '40px'}}></td>
-            <td>Mathias</td>
-            <td>2</td>
-          </tr>
-          <tr>
-            <td style={{backgroundColor : 'yellow', width : '40px', height : '40px'}}></td>
-            <td>Sam</td>
-            <td>5</td>
-          </tr>
+        ))}
         </tbody>
       </table>
     </div>
