@@ -17,7 +17,7 @@ function App() {
        
     const socketUrl = process.env.NODE_ENV === 'development' 
       ? "http://localhost:8080/connect" 
-      : "https://seahorse-app-hxd7g.ondigitalocean.app/connect";
+      : "https://sea-turtle-app-m4dda.ondigitalocean.app/connect";
 
     const socket = new SockJS(socketUrl);
     const client = new Client({
