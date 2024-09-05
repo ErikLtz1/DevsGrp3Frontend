@@ -25,11 +25,17 @@ function PlayerInput(props: Props) {
     }
 
   return (
-    <form onSubmit={sendNewPlayer}>
+    <>
+    { !sessionStorage.getItem("username") ? 
+      <form onSubmit={sendNewPlayer}>
         <label>Enter your username:</label>
         <input className='usernameInput' value={username} onChange={(e) => setUsername(e.target.value)}></input>
         <button type='submit'>Join Game</button>
-    </form>
+    </form> 
+    : 
+    null 
+    }
+    </>
   )
 }
 
