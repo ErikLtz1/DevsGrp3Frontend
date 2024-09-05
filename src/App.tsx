@@ -38,7 +38,7 @@ function App() {
       <PlayerInput stompClient={stompClient} /> 
       <PlayerDisplay stompClient={stompClient} />
       <div className="fieldAndScoreboardDiv">
-        <PlayingField /> 
+        <PlayingField stompClient={stompClient}/> 
         <Scoreboard stompClient={stompClient}/>   
       </div> 
     </> 

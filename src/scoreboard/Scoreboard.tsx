@@ -35,7 +35,6 @@ function Scoreboard(props: Props) {
     }
   }, [props.stompClient])
 
-
   return (
     <div className="scoreboardDiv">
       <h2>Scoreboard</h2>
