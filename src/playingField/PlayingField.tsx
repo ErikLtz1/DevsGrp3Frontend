@@ -8,6 +8,12 @@ interface Cell {
   y: number
 }
 
+interface Bullet {
+  x: number
+  y: number
+  count: number
+}
+
 interface Props {
   stompClient: Client | null
 }
@@ -17,8 +23,8 @@ interface Player {
   playerNumber : number
   shooter : boolean
   colour : string
-  x: string,
-  y: string,
+  x: number,
+  y: number,
   active : boolean
   score : number
 }
@@ -29,6 +35,8 @@ function PlayingField(props: Props) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [gameStart, setGameStart] = useState<boolean>(false)
   const [localPlayer, setLocalPlayer] = useState<string | null>("");
+  const [count, setCount] = useState<number>(5);
+  const [bulletList, setBulletList] = useState<Bullet[]>([]);
 
   useEffect(() => {
     if (props.stompClient) {
@@ -36,13 +44,20 @@ function PlayingField(props: Props) {
         const playerList = JSON.parse(message.body);
         console.log("Received players: ", playerList);
         setPlayers(playerList);      
+
+        props.stompClient?.subscribe("/destroy/bullets", (message) => {
+          console.log("bullet: ", message.body);
+          const updatedBulletList = [...bulletList, JSON.parse(message.body)]
+          setBulletList(updatedBulletList)
+        });
         
       });
-      
+
       return () => {
         subscription.unsubscribe();
       };
     }
+
   }, [props.stompClient])
 
   useEffect (() => {
@@ -52,12 +67,40 @@ function PlayingField(props: Props) {
   useEffect (() => {
     gameStartFunction(players)
   }, [players])
+
+  useEffect (() => {
+    
+    for (let bullet of bulletList) {
+        for (let i = 0; i < bullet.count; i++) {
+          console.log("new : ", bullet.x)
+          
+            setTimeout(() => {
+              bullet.x += 1
+            }, 500);
+            bullet.count -= 1
+          
+        }
+        const updatedBulletList = [...bulletList, bullet]
+          setBulletList(updatedBulletList)
+    }
+  }, [bulletList])
   
   useEffect (() => {
     setLocalPlayer(sessionStorage.getItem("username"))
     console.log("session: ", sessionStorage.getItem("username"))
     console.log("here, ", gameStart)
+    if (gameStart) {
+      setCount(5); 
+    }
   }, [gameStart])
+
+  useEffect(() => {
+    if (count > 0 && gameStart) {
+      const timer = setTimeout(() => setCount(count - 1), 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [count, gameStart]);
 
   const createGrid = () => {
     const gridSize = 20
@@ -83,6 +126,8 @@ function PlayingField(props: Props) {
       return players[2].colour;
     } else if (players[3] && players[3].x + ", " + players[3].y === x + ", " + y) {
       return players[3].colour;
+    } else if (checkForBullet(x, y)) {
+        return "purple";
     } else {
       return "darkgrey";
     }
@@ -96,13 +141,22 @@ function PlayingField(props: Props) {
       console.log(players);
     }
   }
+  
+  function checkForBullet(x: number, y: number) {
+    for (let bullet of bulletList) {
+      if (bullet.x == x && bullet.y == y) {
+        console.log("bullet true")
+        return true;
+      } 
+    }
+  }
 
   return (
     <div className="playingFieldOuterDiv">
       <h2>Shooting Gallery</h2>
-        { gameStart ? <div >
-          5 4 3 2 1
-        </div> : null}
+        { gameStart ? <div className="countdown">
+      <h1>{count > 0 ? count : "Destroy!"}</h1> 
+    </div> : null}
         <div className="playingFieldDiv">
           { gridList.map((cell: Cell, index) => (
             <div 
@@ -118,7 +172,7 @@ function PlayingField(props: Props) {
             </div>
           ))}
       </div>
-        <PlayerButtons stompClient={props.stompClient} localPlayer={localPlayer} />
+        <PlayerButtons stompClient={props.stompClient} localPlayer={localPlayer} count={count} playersList={players}/>
     </div>
   )
 }

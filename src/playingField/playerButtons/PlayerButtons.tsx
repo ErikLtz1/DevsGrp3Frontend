@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 interface Props {
     stompClient: Client | null
     localPlayer: string | null
+    count: number
+    playersList: Player[]
   }
   
   interface Player {
@@ -17,10 +19,17 @@ interface Props {
     score : number
   }
 
+  interface Bullet {
+    x: number
+    y: number
+    count: number
+  }
+
 function PlayerButtons(props: Props) {
 
     const [players, setPlayers] = useState<Player[]>([]);
-    const [isActive] = useState<boolean>(false);
+    const [isActive, setIsActive] = useState<boolean>(false);
+    // const [bullet, setBullet] = useState<Bullet>({ x: 0, y: 0, count: 0})
 
     useEffect(() => {
         if (props.stompClient) {
@@ -38,6 +47,12 @@ function PlayerButtons(props: Props) {
     useEffect(() => {
         console.log("banana: ", props.localPlayer)
     }, [props.localPlayer])
+
+    useEffect(() => {
+        if (props.count == 0) {
+            setIsActive(true)
+        } 
+    }, [props.count])
 
 
     function moveUp(): void {
@@ -81,8 +96,23 @@ function PlayerButtons(props: Props) {
     }
 
 
+    function fire(xNew: number, yNew: number): void {
+        const newBullet: Bullet = {x: xNew + 1, y: yNew, count: 18}
+
+        if (props.stompClient) {
+            props.stompClient.publish({
+                destination: "/app/new-bullet",
+                body: JSON.stringify(newBullet)
+            })
+        } else {
+            console.log("no stomp client")
+        }
+    }
+
   return (
     <div>
+        { players.map((player) => (
+            props.localPlayer == player.username && player.shooter == true ? <button type='button' disabled={!isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
         <button type='button' disabled={!isActive} onClick={() => moveUp()}>Up</button>
         <button type='button' disabled={!isActive} onClick={() => moveDown()}>Down</button>
     </div>
