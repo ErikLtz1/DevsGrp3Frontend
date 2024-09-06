@@ -29,7 +29,6 @@ function PlayerButtons(props: Props) {
 
     const [players, setPlayers] = useState<Player[]>([]);
     const [isActive, setIsActive] = useState<boolean>(false);
-    // const [bullet, setBullet] = useState<Bullet>({ x: 0, y: 0, count: 0})
 
     useEffect(() => {
         if (props.stompClient) {
@@ -45,15 +44,18 @@ function PlayerButtons(props: Props) {
     }, [props.stompClient])
 
     useEffect(() => {
-        console.log("banana: ", props.localPlayer)
-    }, [props.localPlayer])
-
-    useEffect(() => {
         if (props.count == 0) {
             setIsActive(true)
         } 
     }, [props.count])
 
+    useEffect(() => {
+      players.map((player) => {
+         if (player.username == props.localPlayer && player.active === false) {
+            setIsActive(false)    
+         }
+      })
+    })
 
     function moveUp(): void {
 
@@ -95,9 +97,8 @@ function PlayerButtons(props: Props) {
         }
     }
 
-
     function fire(xNew: number, yNew: number): void {
-        const newBullet: Bullet = {x: xNew + 1, y: yNew, count: 18}
+        const newBullet: Bullet = {x: xNew + 1, y: yNew, count: 19}
 
         if (props.stompClient) {
             props.stompClient.publish({
