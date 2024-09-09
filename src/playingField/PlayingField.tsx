@@ -37,7 +37,8 @@ function PlayingField(props: Props) {
   const [localPlayer, setLocalPlayer] = useState<string | null>("");
   const [count, setCount] = useState<number>(5);
   const [bulletList, setBulletList] = useState<Bullet[]>([]);
-  const [roundCount, setRoundCount] = useState<number>(15)
+  const [roundCount, setRoundCount] = useState<number>(15);
+  const [isActive, setIsActive] = useState<boolean>(false);
 
   useEffect(() => {
     if (props.stompClient) {
@@ -72,14 +73,25 @@ function PlayingField(props: Props) {
         prevBulletList
           .map((bullet) => {
             let hitPlayer = false;
-            const clonePlayers = players
+            
+            const clonePlayers = players.map((player: Player) => {
+              return {...player}
+            })
   
             for (let player of clonePlayers) {
               if (bullet.x === player.x && bullet.y === player.y) {
                 hitPlayer = true;
                 player.active = false;
-                setPlayers(clonePlayers)
-                sendUpdatedPlayerList(player.username)
+                player.x == -1
+
+                clonePlayers.forEach((shooter) => {
+                  if (shooter.shooter === true) {
+                    shooter.score += 1;
+                    sendUpdatedPlayerList(shooter)
+                  }
+                })
+                sendUpdatedPlayerList(player)
+
                 break;  
               }
             }
@@ -154,31 +166,23 @@ function PlayingField(props: Props) {
     }
   }
 
-  const gameStartFunction = (players: any) => {
+  const gameStartFunction = (players: Player[]) => {
     if (players.length == 4) {
       setGameStart(true)
-    } else {
-      console.log("error starting game");
-    }
+    } 
   }
   
   function checkForBullet(x: number, y: number) {
     return bulletList.some((bullet) => bullet.x === x && bullet.y === y);
   }
 
-  function sendUpdatedPlayerList(username: string) {
+  function sendUpdatedPlayerList(player: Player) {
 
-    if (props.stompClient) {
-        for(const player of players) {
-          if(player.username === username) {
-            props.stompClient.publish({
-                destination: "/app/update-player-movement",
-                body: JSON.stringify(player)
-            });
-            break;
-          }
-        }
-
+    if (props.stompClient) {      
+      props.stompClient.publish({
+          destination: "/app/update-player-movement",
+          body: JSON.stringify(player)
+      })
     } else {
       console.log("no stomp client")
     }
@@ -188,9 +192,21 @@ function PlayingField(props: Props) {
     setGameStart(false)
     setCount(5)
     setRoundCount(15)
+    setIsActive(false)
+    setBulletList([])
+
+    const clonePlayers = players.map((player: Player) => {
+      return {...player}
+    })
+    
     if (props.stompClient) {
-      for(const player of players) {
+      for(const player of clonePlayers) {
         if(player.username === localPlayer) {
+
+          if(player.active === true && !player.shooter) {
+            player.score += 1
+          }
+
           props.stompClient.publish({
             destination: "/app/new-round",
             body: JSON.stringify(player)
@@ -202,6 +218,10 @@ function PlayingField(props: Props) {
   } else {
     console.log("no stomp client")
   }
+  }
+
+  const updateButtons = (value: boolean) => {
+    setIsActive(value)
   }
 
   return (
@@ -226,7 +246,7 @@ function PlayingField(props: Props) {
             </div>
           ))}
       </div>
-        <PlayerButtons stompClient={props.stompClient} localPlayer={localPlayer} count={count} playersList={players}/>
+        <PlayerButtons stompClient={props.stompClient} localPlayer={localPlayer} count={count} playersList={players} updateButtons = {updateButtons} isActive = {isActive}/>
     </div>
   )
 }
