@@ -36,8 +36,18 @@ function App() {
 
   }, [])
 
+  const resetGame = () => {
+    sessionStorage.clear();
+    if (stompClient) {
+        stompClient.publish({
+        destination: "/app/game-end",
+    });
+    }
+  }
+
   return (
     <>
+      <button onClick={() => resetGame()}>Reset</button>
       <Header /> 
       <PlayerInput stompClient={stompClient} /> 
       <PlayerDisplay stompClient={stompClient} />

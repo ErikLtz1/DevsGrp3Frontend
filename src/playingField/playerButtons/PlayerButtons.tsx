@@ -64,8 +64,6 @@ function PlayerButtons(props: Props) {
                 if (props.localPlayer && props.localPlayer === player.username && player.y >= 1) {
                     player.y -= 1
                     setPlayers(clonePlayerList)
-                    console.log(props.localPlayer, "up " + player.y)
-                    console.log(players)
                     sendUpdatedPlayerList()
                 }
             }
@@ -80,7 +78,6 @@ function PlayerButtons(props: Props) {
             for (let player of players) {
                 if (props.localPlayer && props.localPlayer === player.username && player.y <= 18) {
                     player.y += 1
-                    console.log(props.localPlayer, "down " + player.y)
                     sendUpdatedPlayerList()
                 }
             }
@@ -89,10 +86,8 @@ function PlayerButtons(props: Props) {
 
     function sendUpdatedPlayerList() {
         if (props.stompClient) {
-            console.log("client connected!!!!!!!!!!!")
             for(const player of players) {
               if(player.username === props.localPlayer) {
-                console.log(player)
                 props.stompClient.publish({
                     destination: "/app/update-player-movement",
                     body: JSON.stringify(player)
