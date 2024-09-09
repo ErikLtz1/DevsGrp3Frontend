@@ -25,7 +25,6 @@ function Scoreboard(props: Props) {
     if (props.stompClient) {
         const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
         const playerList = JSON.parse(message.body);
-        console.log("Received players: ", playerList);
         setPlayers(playerList); 
       });
       
