@@ -81,7 +81,7 @@ function PlayingField(props: Props) {
                 console.log("bullet hit ", player.username);
                 player.active = false;
                 setPlayers(clonePlayers)
-                sendUpdatedPlayerList()
+                sendUpdatedPlayerList(player.username)
                 break;  
               }
             }
@@ -157,12 +157,21 @@ function PlayingField(props: Props) {
     return bulletList.some((bullet) => bullet.x === x && bullet.y === y);
   }
 
-  function sendUpdatedPlayerList() {
+  function sendUpdatedPlayerList(username: string) {
+
     if (props.stompClient) {
-        props.stompClient.publish({
-            destination: "/app/update-player-movement",
-            body: JSON.stringify(players)
-        });
+        console.log("client connected!!!!!!!!!!!")
+        for(const player of players) {
+          if(player.username === username) {
+            console.log(player)
+            props.stompClient.publish({
+                destination: "/app/update-player-movement",
+                body: JSON.stringify(player)
+            });
+            break;
+          }
+        }
+
     } else {
         console.log("no stomp client")
     }

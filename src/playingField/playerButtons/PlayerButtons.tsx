@@ -58,11 +58,12 @@ function PlayerButtons(props: Props) {
     })
 
     function moveUp(): void {
-
+        const clonePlayerList = players
         if (props.localPlayer) {
-            for (let player of players) {
+            for (let player of clonePlayerList) {
                 if (props.localPlayer && props.localPlayer === player.username && player.y >= 1) {
                     player.y -= 1
+                    setPlayers(clonePlayerList)
                     console.log(props.localPlayer, "up " + player.y)
                     console.log(players)
                     sendUpdatedPlayerList()
@@ -74,7 +75,7 @@ function PlayerButtons(props: Props) {
     }
 
     function moveDown(): void {
-
+        
         if (props.localPlayer) {
             for (let player of players) {
                 if (props.localPlayer && props.localPlayer === player.username && player.y <= 18) {
@@ -88,10 +89,18 @@ function PlayerButtons(props: Props) {
 
     function sendUpdatedPlayerList() {
         if (props.stompClient) {
-            props.stompClient.publish({
-                destination: "/app/update-player-movement",
-                body: JSON.stringify(players)
-            });
+            console.log("client connected!!!!!!!!!!!")
+            for(const player of players) {
+              if(player.username === props.localPlayer) {
+                console.log(player)
+                props.stompClient.publish({
+                    destination: "/app/update-player-movement",
+                    body: JSON.stringify(player)
+                });
+                break;
+              }
+            }
+    
         } else {
             console.log("no stomp client")
         }
