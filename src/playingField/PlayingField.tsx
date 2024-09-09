@@ -37,7 +37,8 @@ function PlayingField(props: Props) {
   const [localPlayer, setLocalPlayer] = useState<string | null>("");
   const [count, setCount] = useState<number>(5);
   const [bulletList, setBulletList] = useState<Bullet[]>([]);
-  const [roundCount, setRoundCount] = useState<number>(15)
+  const [roundCount, setRoundCount] = useState<number>(15);
+  const [isActive, setIsActive] = useState<boolean>(false);
 
   useEffect(() => {
     if (props.stompClient) {
@@ -80,11 +81,20 @@ function PlayingField(props: Props) {
                 player.active = false;
                 setPlayers(clonePlayers)
                 sendUpdatedPlayerList(player.username)
+
                 break;  
               }
             }
   
             if (hitPlayer) {
+              for (let player of clonePlayers) {
+                if (player.shooter === true) {
+                  player.score += 1
+                  console.log(player.score)
+                  setPlayers(clonePlayers)
+                  break;
+                }
+              }
               return { ...bullet, count: 0 }; 
             }
   
@@ -157,9 +167,7 @@ function PlayingField(props: Props) {
   const gameStartFunction = (players: any) => {
     if (players.length == 4) {
       setGameStart(true)
-    } else {
-      console.log("error starting game");
-    }
+    } 
   }
   
   function checkForBullet(x: number, y: number) {
@@ -188,6 +196,8 @@ function PlayingField(props: Props) {
     setGameStart(false)
     setCount(5)
     setRoundCount(15)
+    setIsActive(false)
+    setBulletList([])
     if (props.stompClient) {
       for(const player of players) {
         if(player.username === localPlayer) {
@@ -202,6 +212,10 @@ function PlayingField(props: Props) {
   } else {
     console.log("no stomp client")
   }
+  }
+
+  const updateButtons = (value: boolean) => {
+    setIsActive(value)
   }
 
   return (
@@ -226,7 +240,7 @@ function PlayingField(props: Props) {
             </div>
           ))}
       </div>
-        <PlayerButtons stompClient={props.stompClient} localPlayer={localPlayer} count={count} playersList={players}/>
+        <PlayerButtons stompClient={props.stompClient} localPlayer={localPlayer} count={count} playersList={players} updateButtons = {updateButtons} isActive = {isActive}/>
     </div>
   )
 }

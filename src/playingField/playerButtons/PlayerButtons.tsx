@@ -6,6 +6,8 @@ interface Props {
     localPlayer: string | null
     count: number
     playersList: Player[]
+    updateButtons: (value: boolean) => void
+    isActive: boolean
   }
   
   interface Player {
@@ -28,7 +30,6 @@ interface Props {
 function PlayerButtons(props: Props) {
 
     const [players, setPlayers] = useState<Player[]>([]);
-    const [isActive, setIsActive] = useState<boolean>(false);
 
     useEffect(() => {
         if (props.stompClient) {
@@ -45,14 +46,14 @@ function PlayerButtons(props: Props) {
 
     useEffect(() => {
         if (props.count == 0) {
-            setIsActive(true)
+            props.updateButtons(true)
         } 
     }, [props.count])
 
     useEffect(() => {
       players.map((player) => {
          if (player.username == props.localPlayer && player.active === false) {
-            setIsActive(false)    
+            props.updateButtons(false)    
          }
       })
     })
@@ -117,9 +118,9 @@ function PlayerButtons(props: Props) {
   return (
     <div>
         { players.map((player) => (
-            props.localPlayer == player.username && player.shooter == true ? <button type='button' disabled={!isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
-        <button type='button' disabled={!isActive} onClick={() => moveUp()}>Up</button>
-        <button type='button' disabled={!isActive} onClick={() => moveDown()}>Down</button>
+            props.localPlayer == player.username && player.shooter == true ? <button type='button' disabled={!props.isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
+        <button type='button' disabled={!props.isActive} onClick={() => moveUp()}>Up</button>
+        <button type='button' disabled={!props.isActive} onClick={() => moveDown()}>Down</button>
     </div>
   )
 }
