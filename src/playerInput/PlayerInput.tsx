@@ -1,17 +1,6 @@
 import { Client } from '@stomp/stompjs';
 import { useState } from 'react';
 
-// interface Player {
-//     username : string
-//     playerNumber : number
-//     shooter : boolean
-//     colour : string
-//     x: number,
-//     y: number,
-//     active : boolean
-//     score : number
-//   }
-
   interface Props {
     stompClient: Client | null
   }
@@ -27,6 +16,8 @@ function PlayerInput(props: Props) {
           destination: "/app/new-player",
           body: username
         });
+        sessionStorage.setItem("username", username)
+        setUsername("");
       } else {
         console.log("no stomp client");
         
@@ -34,11 +25,17 @@ function PlayerInput(props: Props) {
     }
 
   return (
-    <form onSubmit={sendNewPlayer}>
+    <>
+    { !sessionStorage.getItem("username") ? 
+      <form onSubmit={sendNewPlayer}>
         <label>Enter your username:</label>
         <input className='usernameInput' value={username} onChange={(e) => setUsername(e.target.value)}></input>
         <button type='submit'>Join Game</button>
-    </form>
+    </form> 
+    : 
+    null 
+    }
+    </>
   )
 }
 
