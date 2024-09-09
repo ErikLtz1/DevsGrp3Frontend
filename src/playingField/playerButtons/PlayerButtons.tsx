@@ -59,7 +59,7 @@ function PlayerButtons(props: Props) {
     })
 
     function moveUp(): void {
-        const clonePlayerList = players
+        const clonePlayerList = [...players]
         if (props.localPlayer) {
             for (let player of clonePlayerList) {
                 if (props.localPlayer && props.localPlayer === player.username && player.y >= 1) {
@@ -74,11 +74,12 @@ function PlayerButtons(props: Props) {
     }
 
     function moveDown(): void {
-        
+        const clonePlayerList = [...players]
         if (props.localPlayer) {
-            for (let player of players) {
+            for (let player of clonePlayerList) {
                 if (props.localPlayer && props.localPlayer === player.username && player.y <= 18) {
                     player.y += 1
+                    setPlayers(clonePlayerList)
                     sendUpdatedPlayerList()
                 }
             }
@@ -118,9 +119,9 @@ function PlayerButtons(props: Props) {
   return (
     <div>
         { players.map((player) => (
-            props.localPlayer == player.username && player.shooter == true ? <button type='button' disabled={!props.isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
-        <button type='button' disabled={!props.isActive} onClick={() => moveUp()}>Up</button>
-        <button type='button' disabled={!props.isActive} onClick={() => moveDown()}>Down</button>
+            props.localPlayer == player.username && player.shooter == true ? <button type='button' key={"shoot"} disabled={!props.isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
+        <button type='button' key={"up"} disabled={!props.isActive} onClick={() => moveUp()}>Up</button>
+        <button type='button' key={"down"} disabled={!props.isActive} onClick={() => moveDown()}>Down</button>
     </div>
   )
 }
