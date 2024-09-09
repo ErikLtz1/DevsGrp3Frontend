@@ -37,16 +37,15 @@ function PlayingField(props: Props) {
   const [localPlayer, setLocalPlayer] = useState<string | null>("");
   const [count, setCount] = useState<number>(5);
   const [bulletList, setBulletList] = useState<Bullet[]>([]);
+  const [roundCount, setRoundCount] = useState<number>(15)
 
   useEffect(() => {
     if (props.stompClient) {
         const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
         const playerList = JSON.parse(message.body);
-        console.log("Received players: ", playerList);
         setPlayers(playerList);        
       });
       const bulletSubscription = props.stompClient?.subscribe("/destroy/bullets", (message) => {
-        console.log("bullet: ", message.body);
         const bullet = JSON.parse(message.body);
         setBulletList((prevBullets) => [...prevBullets, bullet]);
       });
@@ -78,7 +77,6 @@ function PlayingField(props: Props) {
             for (let player of clonePlayers) {
               if (bullet.x === player.x && bullet.y === player.y) {
                 hitPlayer = true;
-                console.log("bullet hit ", player.username);
                 player.active = false;
                 setPlayers(clonePlayers)
                 sendUpdatedPlayerList(player.username)
@@ -120,6 +118,18 @@ function PlayingField(props: Props) {
     }
   }, [count, gameStart]);
 
+  useEffect(() => {
+    if (count === 0) {
+      const roundTimer = setTimeout(() => setRoundCount(roundCount - 1), 1000)
+
+      if (roundCount === 0) {
+        roundEnd()
+      }
+
+      return () => clearTimeout(roundTimer)
+    }
+  }, [count, roundCount])
+
   const createGrid = () => {
     const gridSize = 20
 
@@ -145,11 +155,10 @@ function PlayingField(props: Props) {
   }
 
   const gameStartFunction = (players: any) => {
-    console.log(players.length)
     if (players.length == 4) {
       setGameStart(true)
     } else {
-      console.log(players);
+      console.log("error starting game");
     }
   }
   
@@ -160,10 +169,8 @@ function PlayingField(props: Props) {
   function sendUpdatedPlayerList(username: string) {
 
     if (props.stompClient) {
-        console.log("client connected!!!!!!!!!!!")
         for(const player of players) {
           if(player.username === username) {
-            console.log(player)
             props.stompClient.publish({
                 destination: "/app/update-player-movement",
                 body: JSON.stringify(player)
@@ -173,15 +180,36 @@ function PlayingField(props: Props) {
         }
 
     } else {
-        console.log("no stomp client")
+      console.log("no stomp client")
     }
-}
+  }
+  
+  function roundEnd() {
+    setGameStart(false)
+    setCount(5)
+    setRoundCount(15)
+    if (props.stompClient) {
+      for(const player of players) {
+        if(player.username === localPlayer) {
+          props.stompClient.publish({
+            destination: "/app/new-round",
+            body: JSON.stringify(player)
+          })
+          break;
+        }
+      }
+
+  } else {
+    console.log("no stomp client")
+  }
+  }
 
   return (
     <div className="playingFieldOuterDiv">
       <h2>Shooting Gallery</h2>
         { gameStart ? <div className="countdown">
-      <h1>{count > 0 ? count : "Destroy!"}</h1> 
+      <h2>{count > 0 ? "Round begins in " + count + " seconds." : "Destroy!"}</h2>
+      <h2>{ count === 0 ? "Time left: " + roundCount : null }</h2> 
     </div> : null}
         <div className="playingFieldDiv">
           { gridList.map((cell: Cell, index) => (
@@ -204,3 +232,4 @@ function PlayingField(props: Props) {
 }
 
 export default PlayingField
+
