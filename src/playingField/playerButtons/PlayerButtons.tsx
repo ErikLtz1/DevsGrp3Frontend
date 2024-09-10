@@ -1,5 +1,5 @@
 import { Client } from '@stomp/stompjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Props {
     stompClient: Client | null
@@ -30,6 +30,7 @@ interface Props {
 function PlayerButtons(props: Props) {
 
     const [players, setPlayers] = useState<Player[]>([]);
+    const ceasefire = useRef(false);
 
     useEffect(() => {
         if (props.stompClient) {
@@ -57,6 +58,19 @@ function PlayerButtons(props: Props) {
          }
       })
     })
+ 
+        const keyPress = (event: { key: string })=>{
+            if (event.key === "ArrowUp") {
+                moveUp()
+                console.log(event)
+            }
+            if (event.key === "ArrowDown") {
+                moveDown()
+                console.log(event)
+            }
+        }
+
+
 
     function moveUp(): void {
         const clonePlayerList = [...players]
@@ -73,7 +87,7 @@ function PlayerButtons(props: Props) {
         }
     }
 
-    function moveDown(): void {
+    function moveDown() {
         const clonePlayerList = [...players]
         if (props.localPlayer) {
             for (let player of clonePlayerList) {
@@ -104,27 +118,74 @@ function PlayerButtons(props: Props) {
     }
 
     function fire(xNew: number, yNew: number): void {
-        const newBullet: Bullet = {x: xNew + 1, y: yNew, count: 19}
+        
+        if (!ceasefire.current) {
+            const newBullet: Bullet = {x: xNew + 1, y: yNew, count: 19}
+    
+            if (props.stompClient) {
+                props.stompClient.publish({
+                    destination: "/app/new-bullet",
+                    body: JSON.stringify(newBullet)
+                })
+            } else {
+                console.log("no stomp client")
+            }
+            ceasefire.current = true
+            setTimeout(()=>{
+                ceasefire.current = false
+            }, 300)
+        }
+        
+    }
 
-        if (props.stompClient) {
-            props.stompClient.publish({
-                destination: "/app/new-bullet",
-                body: JSON.stringify(newBullet)
-            })
-        } else {
-            console.log("no stomp client")
+    function fireBullet(): void {
+        
+        if (props.localPlayer) {
+            const player = players.find(p => p.username === props.localPlayer);
+            if (player) {
+                fire(player.x, player.y);
+            }
         }
     }
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (!props.isActive) return;
+
+            switch (event.key) {
+                case 'ArrowUp':
+                    event.preventDefault()
+                    moveUp();
+                    break;
+                case 'ArrowDown':
+                    event.preventDefault()
+                    moveDown();
+                    break;
+                case ' ':
+                    event.preventDefault()
+                    fireBullet();
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [props.isActive, players]);
+
 
   return (
     <div>
         { players.map((player) => (
-            props.localPlayer == player.username && player.shooter == true ? <button type='button' key={"shoot"} disabled={!props.isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
-        <button type='button' key={"up"} disabled={!props.isActive} onClick={() => moveUp()}>Up</button>
-        <button type='button' key={"down"} disabled={!props.isActive} onClick={() => moveDown()}>Down</button>
+            props.localPlayer == player.username && player.shooter == true ? <button type='button' onKeyDown={keyPress} key={"shoot"} disabled={!props.isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
+        <button type='button' onKeyDown={ keyPress} key={"up"} disabled={!props.isActive} onClick={() => moveUp()}>Up</button>
+        <button type='button' onKeyDown={ keyPress} key={"down"} disabled={!props.isActive} onClick={() => moveDown()}>Down</button>
     </div>
   )
 }
 
 export default PlayerButtons
-
