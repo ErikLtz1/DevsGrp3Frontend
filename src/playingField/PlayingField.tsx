@@ -79,10 +79,9 @@ function PlayingField(props: Props) {
             })
   
             for (let player of clonePlayers) {
-              if (bullet.x === player.x && bullet.y === player.y) {
+              if (bullet.x === player.x && bullet.y === player.y && player.active === true) {
                 hitPlayer = true;
                 player.active = false;
-                player.x == -1
 
                 clonePlayers.forEach((shooter) => {
                   if (shooter.shooter === true) {
