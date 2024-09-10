@@ -56,6 +56,11 @@ function App() {
         <PlayingField stompClient={stompClient} /> 
         <Scoreboard stompClient={stompClient} />   
       </div> 
+      <a href="https://www.flaticon.com/free-icons/bullets" title="bullets icons">Bullets icons created by Freepik - Flaticon</a>
+      <a href="https://www.flaticon.com/free-icons/hunter" title="hunter icons">Hunter icons created by Freepik - Flaticon</a>
+      <a href="https://www.flaticon.com/free-icons/spooky" title="spooky icons">Spooky icons created by Freepik - Flaticon</a>
+      <a href="https://www.flaticon.com/free-icons/viking" title="viking icons">Viking icons created by Freepik - Flaticon</a>
+      <a href="https://www.flaticon.com/free-icons/witch" title="witch icons">Witch icons created by Funkrataii - Flaticon</a>
     </> 
   )
 }

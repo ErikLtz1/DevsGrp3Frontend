@@ -41,11 +41,10 @@ function PlayerDisplay(props: Props) {
         <li key={index} className={`player${player.playerNumber}`}>
           <div
             style={{
-              backgroundColor: player.colour,
               width: "40px",
               height: "40px",
             }}
-          ></div>
+          ><img src={player.colour} /></div>
           <h3>{player.username}</h3>
         </li>
       ))}
