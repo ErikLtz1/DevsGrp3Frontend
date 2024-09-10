@@ -125,7 +125,10 @@ function PlayerButtons(props: Props) {
             if (props.stompClient) {
                 props.stompClient.publish({
                     destination: "/app/new-bullet",
-                    body: JSON.stringify(newBullet)
+                    body: JSON.stringify(newBullet),
+                    headers: {
+                        'ack': 'client-individual'
+                      }
                 })
             } else {
                 console.log("no stomp client")
