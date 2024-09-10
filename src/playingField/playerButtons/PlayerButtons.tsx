@@ -141,44 +141,44 @@ function PlayerButtons(props: Props) {
         
     }
 
-    function fireBullet(): void {
+    // function fireBullet(): void {
         
-        if (props.localPlayer) {
-            const player = players.find(p => p.username === props.localPlayer);
-            if (player) {
-                fire(player.x, player.y);
-            }
-        }
-    }
+    //     if (props.localPlayer) {
+    //         const player = players.find(p => p.username === props.localPlayer);
+    //         if (player) {
+    //             fire(player.x, player.y);
+    //         }
+    //     }
+    // }
 
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (!props.isActive) return;
+    // useEffect(() => {
+    //     const handleKeyDown = (event: KeyboardEvent) => {
+    //         if (!props.isActive) return;
 
-            switch (event.key) {
-                case 'ArrowUp':
-                    event.preventDefault()
-                    moveUp();
-                    break;
-                case 'ArrowDown':
-                    event.preventDefault()
-                    moveDown();
-                    break;
-                case ' ':
-                    event.preventDefault()
-                    fireBullet();
-                    break;
-                default:
-                    break;
-            }
-        };
+    //         switch (event.key) {
+    //             case 'ArrowUp':
+    //                 event.preventDefault()
+    //                 moveUp();
+    //                 break;
+    //             case 'ArrowDown':
+    //                 event.preventDefault()
+    //                 moveDown();
+    //                 break;
+    //             case ' ':
+    //                 event.preventDefault()
+    //                 fireBullet();
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     };
 
-        window.addEventListener('keydown', handleKeyDown);
+    //     window.addEventListener('keydown', handleKeyDown);
 
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [props.isActive, players]);
+    //     return () => {
+    //         window.removeEventListener('keydown', handleKeyDown);
+    //     };
+    // }, [props.isActive, players]);
 
 
   return (
