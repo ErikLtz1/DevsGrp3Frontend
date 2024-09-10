@@ -58,19 +58,6 @@ function PlayerButtons(props: Props) {
          }
       })
     })
- 
-        const keyPress = (event: { key: string })=>{
-            if (event.key === "ArrowUp") {
-                moveUp()
-                console.log(event)
-            }
-            if (event.key === "ArrowDown") {
-                moveDown()
-                console.log(event)
-            }
-        }
-
-
 
     function moveUp(): void {
         const clonePlayerList = [...players]
@@ -141,52 +128,52 @@ function PlayerButtons(props: Props) {
         
     }
 
-    // function fireBullet(): void {
+    function fireBullet(): void {
         
-    //     if (props.localPlayer) {
-    //         const player = players.find(p => p.username === props.localPlayer);
-    //         if (player) {
-    //             fire(player.x, player.y);
-    //         }
-    //     }
-    // }
+        if (props.localPlayer) {
+            const player = players.find(p => p.username === props.localPlayer);
+            if (player) {
+                fire(player.x, player.y);
+            }
+        }
+    }
 
-    // useEffect(() => {
-    //     const handleKeyDown = (event: KeyboardEvent) => {
-    //         if (!props.isActive) return;
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (!props.isActive) return;
 
-    //         switch (event.key) {
-    //             case 'ArrowUp':
-    //                 event.preventDefault()
-    //                 moveUp();
-    //                 break;
-    //             case 'ArrowDown':
-    //                 event.preventDefault()
-    //                 moveDown();
-    //                 break;
-    //             case ' ':
-    //                 event.preventDefault()
-    //                 fireBullet();
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //     };
+            switch (event.key) {
+                case 'ArrowUp':
+                    event.preventDefault()
+                    moveUp();
+                    break;
+                case 'ArrowDown':
+                    event.preventDefault()
+                    moveDown();
+                    break;
+                case ' ':
+                    event.preventDefault()
+                    fireBullet();
+                    break;
+                default:
+                    break;
+            }
+        };
 
-    //     window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keydown', handleKeyDown);
 
-    //     return () => {
-    //         window.removeEventListener('keydown', handleKeyDown);
-    //     };
-    // }, [props.isActive, players]);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [props.isActive, players]);
 
 
   return (
     <div>
         { players.map((player) => (
-            props.localPlayer == player.username && player.shooter == true ? <button type='button' onKeyDown={keyPress} key={"shoot"} disabled={!props.isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
-        <button type='button' onKeyDown={ keyPress} key={"up"} disabled={!props.isActive} onClick={() => moveUp()}>Up</button>
-        <button type='button' onKeyDown={ keyPress} key={"down"} disabled={!props.isActive} onClick={() => moveDown()}>Down</button>
+            props.localPlayer == player.username && player.shooter == true ? <button type='button' key={"shoot"} disabled={!props.isActive} onClick={() => fire(player.x, player.y)}>Fire</button> : null ))}
+        <button type='button' key={"up"} disabled={!props.isActive} onClick={() => moveUp()}>Up</button>
+        <button type='button' key={"down"} disabled={!props.isActive} onClick={() => moveDown()}>Down</button>
     </div>
   )
 }
