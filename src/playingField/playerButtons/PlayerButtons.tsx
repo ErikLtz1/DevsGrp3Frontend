@@ -58,6 +58,33 @@ function PlayerButtons(props: Props) {
       })
     })
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (!props.isActive) return;
+
+            switch (event.key) {
+                case 'ArrowUp':
+                    moveUp();
+                    break;
+                case 'ArrowDown':
+                    moveDown();
+                    break;
+                case ' ':
+                    fireBullet();
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [props.isActive, players]);
+
+
     function moveUp(): void {
         const clonePlayerList = [...players]
         if (props.localPlayer) {
@@ -113,6 +140,15 @@ function PlayerButtons(props: Props) {
             })
         } else {
             console.log("no stomp client")
+        }
+    }
+
+    function fireBullet(): void {
+        if (props.localPlayer) {
+            const player = players.find(p => p.username === props.localPlayer);
+            if (player) {
+                fire(player.x, player.y);
+            }
         }
     }
 
