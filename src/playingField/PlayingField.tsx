@@ -113,7 +113,7 @@ function PlayingField(props: Props) {
     }, 100); 
   
     return () => clearInterval(bulletMovementInterval); 
-  }, [bulletList]);
+  }, [bulletList, players]);
   
   useEffect (() => {
     setLocalPlayer(sessionStorage.getItem("username"))
