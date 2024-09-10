@@ -43,6 +43,7 @@ function App() {
         destination: "/app/game-end",
     });
     }
+    location.reload();
   }
 
   return (

@@ -19,8 +19,7 @@ function PlayerInput(props: Props) {
         sessionStorage.setItem("username", username)
         setUsername("");
       } else {
-        console.log("no stomp client");
-        
+        console.log("no stomp client");  
       }
     }
 
@@ -33,8 +32,7 @@ function PlayerInput(props: Props) {
         <button type='submit'>Join Game</button>
     </form> 
     : 
-    null 
-    }
+    null }
     </>
   )
 }
