@@ -88,6 +88,7 @@ function PlayingField(props: Props) {
                 clonePlayers.forEach((shooter) => {
                   if (shooter.shooter === true) {
                     shooter.score += 1;
+                    console.log("shooter: ", shooter.score)
                     sendUpdatedPlayerList(shooter)
                   }
                 })
@@ -113,7 +114,6 @@ function PlayingField(props: Props) {
   
     return () => clearInterval(bulletMovementInterval); 
   }, [bulletList]);
-  
   
   useEffect (() => {
     setLocalPlayer(sessionStorage.getItem("username"))
@@ -187,7 +187,10 @@ function PlayingField(props: Props) {
     if (props.stompClient) {      
       props.stompClient.publish({
           destination: "/app/update-player-movement",
-          body: JSON.stringify(player)
+          body: JSON.stringify(player),
+          headers: {
+            'ack': 'client-individual'
+          }
       })
     } else {
       console.log("no stomp client")
