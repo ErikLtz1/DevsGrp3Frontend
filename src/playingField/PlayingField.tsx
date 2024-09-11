@@ -172,12 +172,35 @@ function PlayingField(props: Props) {
   }, [winner])
 
   function getColour(x: number, y: number) {
-    if (players.some((player) => player.x === x && player.y === y && player.active === true)) {
-      return players.find((player) => player.x === x && player.y === y)!.colour;
-    } else if (checkForBullet(x, y)) {
-      return "purple"; 
-    } else {
-      return "darkgrey";
+
+    if (players.length === 4) {
+      const colour = players.find((player) => player.x === x && player.y === y && player.active === true)?.colour
+      
+      if (colour) {
+        return {
+          backgroundImage: `url(${colour})`,
+          backgroundSize: "cover",
+          backgroundColor: "darkgrey",
+          width: "20px", 
+          height: "20px"
+        }
+      } else if (checkForBullet(x, y)) {
+        return {
+          backgroundImage: `url("src/images/bullet.png")`,
+          backgroundSize: "cover",
+          backgroundColor: "darkgrey",
+          width: "20px", 
+          height: "20px"
+        }
+      } else {
+        return { 
+          backgroundImage: '',
+          backgroundSize: "",
+          backgroundColor: "darkgrey",
+          width: "20px", 
+          height: "20px"
+        }
+      }
     }
   }
 
@@ -303,9 +326,7 @@ function PlayingField(props: Props) {
               key={index}
               id={cell.x + ", " + cell.y}
               className="cell"
-              style={{backgroundColor: getColour(cell.x, cell.y), 
-              width: "20px", 
-              height: "20px"}}
+              style={getColour(cell.x, cell.y)}
               data-x = {cell.x}
               data-y = {cell.y}
             >
