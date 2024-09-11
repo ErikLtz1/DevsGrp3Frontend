@@ -90,10 +90,10 @@ function PlayingField(props: Props) {
                   if (shooter.shooter === true) {
                     shooter.score += 1;
                     console.log("shooter: ", shooter.score)
-                    sendUpdatedPlayerList(shooter)
+                    sendUpdatedPlayerScore(shooter)
                   }
                 })
-                sendUpdatedPlayerList(player)
+                sendUpdatedPlayerActive(player)
 
                 break;  
               }
@@ -214,11 +214,26 @@ function PlayingField(props: Props) {
     return bulletList.some((bullet) => bullet.x === x && bullet.y === y);
   }
 
-  function sendUpdatedPlayerList(player: Player) {
+  function sendUpdatedPlayerActive(player: Player) {
 
     if (props.stompClient) {      
       props.stompClient.publish({
-          destination: "/app/update-player-movement",
+          destination: "/app/update-player-active",
+          body: JSON.stringify(player),
+          headers: {
+            'ack': 'client-individual'
+          }
+      })
+    } else {
+      console.log("no stomp client")
+    }
+  }
+
+  function sendUpdatedPlayerScore(player: Player) {
+
+    if (props.stompClient) {      
+      props.stompClient.publish({
+          destination: "/app/update-player-score",
           body: JSON.stringify(player),
           headers: {
             'ack': 'client-individual'
