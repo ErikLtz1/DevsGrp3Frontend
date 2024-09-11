@@ -11,3 +11,23 @@
     background-color: grey;
     margin-right: 50px;
 }
+
+.winner {
+    position: absolute;
+    top: 45%;
+    margin: auto;
+    width: 100vw;
+    height: auto;
+    background-color: rgba(128, 128, 128, 0.493);
+}
+
+.winnerDiv {
+    position: absolute;
+    align-items: center;
+    margin: auto;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(128, 128, 128, 0.493);
+    left: 0;
+    top: 0;
+}

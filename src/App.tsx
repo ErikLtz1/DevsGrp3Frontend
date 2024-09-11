@@ -48,7 +48,7 @@ function App() {
 
   return (
     <>
-      <button onClick={() => resetGame()}>Reset</button>
+      <button className="resetBtn" onClick={() => resetGame()}>Reset</button>
       <Header /> 
       <PlayerInput stompClient={stompClient} /> 
       <PlayerDisplay stompClient={stompClient} />

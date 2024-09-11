@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import "./playingField.css"
 import { Client } from "@stomp/stompjs"
 import PlayerButtons from "./playerButtons/PlayerButtons"
+import { startConfetti, stopConfetti } from "./confetti.ts"
 
 interface Cell {
   x: number
@@ -162,6 +163,14 @@ function PlayingField(props: Props) {
     setGridList(buildGridList)
   }
 
+  useEffect (() => {
+    console.log(winner)
+    if (winner !== "") {
+      startConfetti()
+      setTimeout(() => {stopConfetti(), setWinner("");}, 10000)
+    }
+  }, [winner])
+
   function getColour(x: number, y: number) {
     if (players.some((player) => player.x === x && player.y === y && player.active === true)) {
       return players.find((player) => player.x === x && player.y === y)!.colour;
@@ -287,9 +296,7 @@ function PlayingField(props: Props) {
                         <h2>{count > 0 ? "Round " + roundNumber + "\nbegins in " + count + " seconds." : "Destroy!"}</h2>
                         <h2>{ count === 0 ? "Time left: " + roundCount : null }</h2> 
                       </div> : null}
-        <div>
-          <h1>{ winner !== "" ? "The Winner is " + winner : null }</h1>
-        </div>
+        { winner !== "" ? <div className="winnerDiv"><h1 className="winner" >{  "The Winner is " + winner }</h1> </div> : null}
         <div className="playingFieldDiv">
           { gridList.map((cell: Cell, index) => (
             <div 
