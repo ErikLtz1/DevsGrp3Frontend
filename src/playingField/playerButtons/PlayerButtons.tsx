@@ -66,7 +66,7 @@ function PlayerButtons(props: Props) {
                 if (props.localPlayer && props.localPlayer === player.username && player.y >= 1) {
                     player.y -= 1
                     setPlayers(clonePlayerList)
-                    sendUpdatedPlayerList()
+                    sendUpdatedPlayerMovement()
                 }
             }
         } else {
@@ -81,13 +81,13 @@ function PlayerButtons(props: Props) {
                 if (props.localPlayer && props.localPlayer === player.username && player.y <= 18) {
                     player.y += 1
                     setPlayers(clonePlayerList)
-                    sendUpdatedPlayerList()
+                    sendUpdatedPlayerMovement()
                 }
             }
         }
     }
 
-    function sendUpdatedPlayerList() {
+    function sendUpdatedPlayerMovement() {
         if (props.stompClient) {
             for(const player of players) {
               if(player.username === props.localPlayer) {
