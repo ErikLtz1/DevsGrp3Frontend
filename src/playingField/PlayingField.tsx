@@ -186,7 +186,7 @@ function PlayingField(props: Props) {
         }
       } else if (checkForBullet(x, y)) {
         return {
-          backgroundImage: `url("public/bullet.png")`,
+          backgroundImage: `url("/bullet.png")`,
           backgroundSize: "cover",
           backgroundColor: "darkgrey",
           width: "20px", 
