@@ -50,11 +50,12 @@ function Scoreboard(props: Props) {
           <tr key={index}>
             <td
               style={{
-                backgroundColor: player.colour,
                 width: "40px",
                 height: "40px",
               }}
-            ></td>
+            >
+              <img src={player.colour}></img>
+            </td>
             <td>{player.username}</td>
             <td>{player.score}</td>
           </tr>

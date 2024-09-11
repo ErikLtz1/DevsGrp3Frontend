@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import "./playingField.css"
 import { Client } from "@stomp/stompjs"
 import PlayerButtons from "./playerButtons/PlayerButtons"
+import { startConfetti, stopConfetti } from "./confetti.ts"
 
 interface Cell {
   x: number
@@ -89,10 +90,10 @@ function PlayingField(props: Props) {
                   if (shooter.shooter === true) {
                     shooter.score += 1;
                     console.log("shooter: ", shooter.score)
-                    sendUpdatedPlayerList(shooter)
+                    sendUpdatedPlayerScore(shooter)
                   }
                 })
-                sendUpdatedPlayerList(player)
+                sendUpdatedPlayerActive(player)
 
                 break;  
               }
@@ -162,13 +163,44 @@ function PlayingField(props: Props) {
     setGridList(buildGridList)
   }
 
+  useEffect (() => {
+    console.log(winner)
+    if (winner !== "") {
+      startConfetti()
+      setTimeout(() => {stopConfetti(), setWinner("");}, 10000)
+    }
+  }, [winner])
+
   function getColour(x: number, y: number) {
-    if (players.some((player) => player.x === x && player.y === y && player.active === true)) {
-      return players.find((player) => player.x === x && player.y === y)!.colour;
-    } else if (checkForBullet(x, y)) {
-      return "purple"; 
-    } else {
-      return "darkgrey";
+
+    if (players.length === 4) {
+      const colour = players.find((player) => player.x === x && player.y === y && player.active === true)?.colour
+      
+      if (colour) {
+        return {
+          backgroundImage: `url(${colour})`,
+          backgroundSize: "cover",
+          backgroundColor: "darkgrey",
+          width: "20px", 
+          height: "20px"
+        }
+      } else if (checkForBullet(x, y)) {
+        return {
+          backgroundImage: `url("src/images/bullet.png")`,
+          backgroundSize: "cover",
+          backgroundColor: "darkgrey",
+          width: "20px", 
+          height: "20px"
+        }
+      } else {
+        return { 
+          backgroundImage: '',
+          backgroundSize: "",
+          backgroundColor: "darkgrey",
+          width: "20px", 
+          height: "20px"
+        }
+      }
     }
   }
 
@@ -182,11 +214,26 @@ function PlayingField(props: Props) {
     return bulletList.some((bullet) => bullet.x === x && bullet.y === y);
   }
 
-  function sendUpdatedPlayerList(player: Player) {
+  function sendUpdatedPlayerActive(player: Player) {
 
     if (props.stompClient) {      
       props.stompClient.publish({
-          destination: "/app/update-player-movement",
+          destination: "/app/update-player-active",
+          body: JSON.stringify(player),
+          headers: {
+            'ack': 'client-individual'
+          }
+      })
+    } else {
+      console.log("no stomp client")
+    }
+  }
+
+  function sendUpdatedPlayerScore(player: Player) {
+
+    if (props.stompClient) {      
+      props.stompClient.publish({
+          destination: "/app/update-player-score",
           body: JSON.stringify(player),
           headers: {
             'ack': 'client-individual'
@@ -287,18 +334,14 @@ function PlayingField(props: Props) {
                         <h2>{count > 0 ? "Round " + roundNumber + "\nbegins in " + count + " seconds." : "Destroy!"}</h2>
                         <h2>{ count === 0 ? "Time left: " + roundCount : null }</h2> 
                       </div> : null}
-        <div>
-          <h1>{ winner !== "" ? "The Winner is " + winner : null }</h1>
-        </div>
+        { winner !== "" ? <div className="winnerDiv"><h1 className="winner" >{  "The Winner is " + winner }</h1> </div> : null}
         <div className="playingFieldDiv">
           { gridList.map((cell: Cell, index) => (
             <div 
               key={index}
               id={cell.x + ", " + cell.y}
               className="cell"
-              style={{backgroundColor: getColour(cell.x, cell.y), 
-              width: "20px", 
-              height: "20px"}}
+              style={getColour(cell.x, cell.y)}
               data-x = {cell.x}
               data-y = {cell.y}
             >
