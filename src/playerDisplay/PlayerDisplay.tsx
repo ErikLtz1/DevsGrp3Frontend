@@ -38,15 +38,17 @@ function PlayerDisplay(props: Props) {
   return (
     <ul className="playerList">
        {players.map((player: Player, index: number) => (
-        <li key={index} className={`player${player.playerNumber}`}>
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-            }}
-          ><img src={player.colour} /></div>
-          <h3>{player.username}</h3>
-        </li>
+        <>
+          <li key={index} className={`player${player.playerNumber}`}>
+            <div
+              style={{
+                width: "40px",
+                height: "40px",
+              }}
+            ><img src={player.colour} /></div>
+          </li>
+          <li key={player.username}><h3>{player.username}</h3></li>
+        </>
       ))}
     </ul>
   )

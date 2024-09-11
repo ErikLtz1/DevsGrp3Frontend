@@ -10,4 +10,10 @@ table {
     width: 20vw;
     text-align: center;
     background-color: darkgrey;
+    margin: auto;
+}
+
+.playingFieldOuterDiv {
+    text-align: center;
+    margin: auto;
 }
