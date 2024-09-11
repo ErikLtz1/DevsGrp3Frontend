@@ -186,7 +186,7 @@ function PlayingField(props: Props) {
         }
       } else if (checkForBullet(x, y)) {
         return {
-          backgroundImage: `url("src/images/bullet.png")`,
+          backgroundImage: `url("public/bullet.png")`,
           backgroundSize: "cover",
           backgroundColor: "darkgrey",
           width: "20px", 
@@ -290,6 +290,7 @@ function PlayingField(props: Props) {
   
             if(player.active === true && !player.shooter) {
               player.score += 1
+              sendUpdatedPlayerScore(player)
             }
   
             props.stompClient.publish({
