@@ -1,5 +1,6 @@
 import { Client } from '@stomp/stompjs';
 import { useState } from 'react';
+import "./playerInput.css";
 
   interface Props {
     stompClient: Client | null
@@ -26,7 +27,7 @@ function PlayerInput(props: Props) {
   return (
     <>
     { !sessionStorage.getItem("username") ? 
-      <form onSubmit={sendNewPlayer}>
+      <form className='inputForm' onSubmit={sendNewPlayer}>
         <label>Enter your username:</label>
         <input className='usernameInput' value={username} onChange={(e) => setUsername(e.target.value)}></input>
         <button type='submit'>Join Game</button>

@@ -1,7 +1,8 @@
 .playerList {
     list-style: none;
     display: flex;
-    width: 75%;
+    margin: auto;
+    width: 50%;
     flex-direction: row;
 }
 
@@ -15,4 +16,10 @@ li {
 h3 {
     margin-top: 10px;
     margin-left: 5px;
+}
+
+.playerListDiv {
+    width: 100vw;
+    margin: auto;
+    text-align: center;
 }
