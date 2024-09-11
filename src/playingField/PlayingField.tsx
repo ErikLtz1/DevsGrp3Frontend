@@ -42,6 +42,7 @@ function PlayingField(props: Props) {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [roundNumber, setRoundNumber] = useState<number>(0);
   const [winner, setWinner] = useState<string>("")
+  const [explosion, setExplosion] = useState<string>("")
 
   useEffect(() => {
     if (props.stompClient) {
@@ -85,6 +86,7 @@ function PlayingField(props: Props) {
               if (bullet.x === player.x && bullet.y === player.y && player.active === true) {
                 hitPlayer = true;
                 player.active = false;
+
 
                 clonePlayers.forEach((shooter) => {
                   if (shooter.shooter === true) {
@@ -171,6 +173,11 @@ function PlayingField(props: Props) {
     }
   }, [winner])
 
+  useEffect(() => {
+    setTimeout(() => {setExplosion(`url("/explosion.gif")`), 1000})
+    setExplosion("")
+  }, [explosion])
+
   function getColour(x: number, y: number) {
 
     if (players.length === 4) {
@@ -179,6 +186,14 @@ function PlayingField(props: Props) {
       if (colour) {
         return {
           backgroundImage: `url(${colour})`,
+          backgroundSize: "cover",
+          backgroundColor: "darkgrey",
+          width: "20px", 
+          height: "20px"
+        }
+      } else if (players.find((player) => player.x === x && player.y === y && player.active === false)) {
+        return {
+          backgroundImage: explosion,
           backgroundSize: "cover",
           backgroundColor: "darkgrey",
           width: "20px", 
