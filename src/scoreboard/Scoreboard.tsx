@@ -23,7 +23,7 @@ function Scoreboard(props: Props) {
 
   useEffect(() => {
     if (props.stompClient) {
-        const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
+        const subscription = props.stompClient.subscribe("/destroy/player-scores", (message) => {
         const playerList = JSON.parse(message.body);
         setPlayers(playerList); 
       });
