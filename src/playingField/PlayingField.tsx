@@ -61,11 +61,17 @@ function PlayingField(props: Props) {
           setPlayers(playerDisplayList);
           setLocalPlayer(sessionStorage.getItem("username"))
         })
+        const newGameSubscription = props.stompClient?.subscribe("/destroy/new-game", (message) => {
+          setPlayers(JSON.parse(message.body));
+          setRoundNumber(0)
+          roundEnd()
+        });
 
       return () => {
         subscription.unsubscribe();
         bulletSubscription.unsubscribe();
         playerDisplaySubscription.unsubscribe();
+        newGameSubscription.unsubscribe();
       };
     }
 
@@ -74,10 +80,6 @@ function PlayingField(props: Props) {
   useEffect (() => {
     createGrid()
   }, [])
-
-  // useEffect (() => {
-  //   gameStartFunction(players)
-  // }, [players])
   
   const gameStartFunction = (players: Player[]) => {
     if (players.length == 4) {
@@ -333,7 +335,7 @@ function PlayingField(props: Props) {
       } else {
         console.log("no stomp client")
       }
-      findWinner()
+      setTimeout(() => {findWinner()}, 2000)
     }
   }
 
@@ -358,6 +360,15 @@ function PlayingField(props: Props) {
     setIsActive(value)
   }
 
+  const newGame = () => {
+    if(props.stompClient) {
+      props.stompClient.publish({
+        destination: "/app/new-game",
+        body: JSON.stringify("new game")
+      })
+    }
+  }
+
   return (
     <div className="playingFieldOuterDiv">
       <h2>Shooting Gallery</h2>
@@ -366,6 +377,7 @@ function PlayingField(props: Props) {
                         <h2>{ count === 0 ? "Time left: " + roundCount : null }</h2> 
                       </div> : null}
         { winner !== "" ? <div className="winnerDiv"><h1 className="winner" >{  "The Winner is " + winner }</h1> </div> : null}
+        { roundNumber === 4 ? <div><button onClick={() => newGame()}>New Game?</button></div> : null} 
         <div className="playingFieldDiv">
           { gridList.map((cell: Cell, index) => (
             <div 
