@@ -23,13 +23,19 @@ function Scoreboard(props: Props) {
 
   useEffect(() => {
     if (props.stompClient) {
-        const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
+        const subscription = props.stompClient.subscribe("/destroy/player-scores", (message) => {
         const playerList = JSON.parse(message.body);
         setPlayers(playerList); 
+      });
+      const regSubscription = props.stompClient.subscribe("/destroy/player-registration", (message) => {
+        const playerList = JSON.parse(message.body);
+        setPlayers(playerList); 
+        console.log("player 1:", playerList[0]);
       });
       
       return () => {
         subscription.unsubscribe();
+        regSubscription.unsubscribe();
       };
     }
   }, [props.stompClient])

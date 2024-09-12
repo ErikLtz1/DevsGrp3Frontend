@@ -47,17 +47,25 @@ function PlayingField(props: Props) {
   useEffect(() => {
     if (props.stompClient) {
         const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
-        const playerList = JSON.parse(message.body);
-        setPlayers(playerList);        
-      });
-      const bulletSubscription = props.stompClient?.subscribe("/destroy/bullets", (message) => {
-        const bullet = JSON.parse(message.body);
-        setBulletList((prevBullets) => [...prevBullets, bullet]);
-      });
+          const playerList = JSON.parse(message.body);
+          setPlayers(playerList);     
+        });
+        const bulletSubscription = props.stompClient?.subscribe("/destroy/bullets", (message) => {
+          const bullet = JSON.parse(message.body);
+          setBulletList((prevBullets) => [...prevBullets, bullet]);
+        });
+        const playerDisplaySubscription = props.stompClient.subscribe("/destroy/player-registration", (message) => {
+          console.log("player display sub")
+          const playerDisplayList = JSON.parse(message.body);
+          gameStartFunction(playerDisplayList)
+          setPlayers(playerDisplayList);
+          setLocalPlayer(sessionStorage.getItem("username"))
+        })
 
       return () => {
         subscription.unsubscribe();
         bulletSubscription.unsubscribe();
+        playerDisplaySubscription.unsubscribe();
       };
     }
 
@@ -67,9 +75,15 @@ function PlayingField(props: Props) {
     createGrid()
   }, [])
 
-  useEffect (() => {
-    gameStartFunction(players)
-  }, [players])
+  // useEffect (() => {
+  //   gameStartFunction(players)
+  // }, [players])
+  
+  const gameStartFunction = (players: Player[]) => {
+    if (players.length == 4) {
+      setGameStart(true)
+    } 
+  }
 
   useEffect(() => {
     const bulletMovementInterval = setInterval(() => {
@@ -84,6 +98,7 @@ function PlayingField(props: Props) {
   
             for (let player of clonePlayers) {
               if (bullet.x === player.x && bullet.y === player.y && player.active === true) {
+                getExplosion()
                 hitPlayer = true;
                 player.active = false;
 
@@ -119,10 +134,8 @@ function PlayingField(props: Props) {
   }, [bulletList, players]);
   
   useEffect (() => {
-    setLocalPlayer(sessionStorage.getItem("username"))
-
     if (gameStart) {
-      setCount(5); 
+      console.log("stop")
       setRoundNumber((prevRoundNumber) => prevRoundNumber + 1)
     }
   }, [gameStart])
@@ -173,10 +186,10 @@ function PlayingField(props: Props) {
     }
   }, [winner])
 
-  useEffect(() => {
-    setTimeout(() => {setExplosion(`url("/explosion.gif")`), 1000})
-    setExplosion("")
-  }, [explosion])
+  const getExplosion = () => {
+    setExplosion(`url("/explosion.gif")`)
+    setTimeout(() => {setExplosion("")}, 1500)
+  }
 
   function getColour(x: number, y: number) {
 
@@ -192,6 +205,7 @@ function PlayingField(props: Props) {
           height: "20px"
         }
       } else if (players.find((player) => player.x === x && player.y === y && player.active === false)) {
+        
         return {
           backgroundImage: explosion,
           backgroundSize: "cover",
@@ -217,12 +231,6 @@ function PlayingField(props: Props) {
         }
       }
     }
-  }
-
-  const gameStartFunction = (players: Player[]) => {
-    if (players.length == 4) {
-      setGameStart(true)
-    } 
   }
   
   function checkForBullet(x: number, y: number) {
@@ -263,11 +271,10 @@ function PlayingField(props: Props) {
     if (roundNumber < 4) {
         console.log("round: ", roundNumber)
         setGameStart(false)
-        setCount(5)
         setRoundCount(15)
         setIsActive(false)
         setBulletList([])
-    
+        
         const clonePlayers = players.map((player: Player) => {
           return {...player}
         })
@@ -275,11 +282,16 @@ function PlayingField(props: Props) {
         if (props.stompClient) {
           for(const player of clonePlayers) {
             if(player.username === localPlayer) {
-    
+              
               if(player.active === true && !player.shooter) {
                 player.score += 1
               }
-    
+
+              props.stompClient.publish({
+                destination: "/app/update-player-score",
+                body: JSON.stringify(player)
+              })
+
               props.stompClient.publish({
                 destination: "/app/new-round",
                 body: JSON.stringify(player)
@@ -290,6 +302,9 @@ function PlayingField(props: Props) {
         } else {
           console.log("no stomp client")
         }
+        console.log("start")
+        setTimeout(() => {setCount(5), setGameStart(true)}, 2000)
+        
     } else {
       setGameStart(false)
       setIsActive(false)
@@ -323,20 +338,20 @@ function PlayingField(props: Props) {
   }
 
   const findWinner = () => {
-    let highestScoreName = ""; 
+    let highestScoreNames: string[] = []; 
     let highscore = 0;
     
     for (const player of players) {
       console.log("highscore: ", highscore)
       if (player.score > highscore) {
         highscore = player.score
-        highestScoreName = player.username
-        console.log("user: ", highestScoreName)
-      } else if (player.score == highscore) {
-        highestScoreName = highestScoreName + " and " + player.username;
+        highestScoreNames = [player.username]
+      } else if (player.score === highscore) {
+        highestScoreNames.push(player.username);
       }
     }
-    setWinner(highestScoreName)
+    const highestScoreString = highestScoreNames.join(" and ")
+    setWinner(highestScoreString)
   }
 
   const updateButtons = (value: boolean) => {

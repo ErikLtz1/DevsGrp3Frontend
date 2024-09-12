@@ -12,6 +12,7 @@ function PlayerInput(props: Props) {
 
     const sendNewPlayer = (e: { preventDefault: () => void; }) => {
       e.preventDefault();
+      
       if (props.stompClient) {
         props.stompClient.publish({
           destination: "/app/new-player",

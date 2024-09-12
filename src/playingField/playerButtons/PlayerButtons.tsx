@@ -34,13 +34,18 @@ function PlayerButtons(props: Props) {
 
     useEffect(() => {
         if (props.stompClient) {
-            const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
+            const subscription = props.stompClient.subscribe("/destroy/player-registration", (message) => {
+            const playerList = JSON.parse(message.body);
+            setPlayers(playerList); 
+        });
+            const subscriptionPlayers = props.stompClient.subscribe("/destroy/players", (message) => {
             const playerList = JSON.parse(message.body);
             setPlayers(playerList); 
         });
         
         return () => {
             subscription.unsubscribe();
+            subscriptionPlayers.unsubscribe();
         };
         }
     }, [props.stompClient])
