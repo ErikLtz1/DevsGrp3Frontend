@@ -1,15 +1,23 @@
 #root {
-  max-width: 1280px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: center;
 }
 
 .fieldAndScoreboardDiv {
   display: flex;
   flex-direction: row;
+  width: 75%;
+  margin: auto;
+  margin-right: 10%;
 }
 
 .resetBtn {
   z-index: 99;
+}
+
+.credList {
+  list-style-type: none;
+  font-size: x-small;
 }
