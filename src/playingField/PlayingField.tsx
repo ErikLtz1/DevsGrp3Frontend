@@ -98,6 +98,7 @@ function PlayingField(props: Props) {
   
             for (let player of clonePlayers) {
               if (bullet.x === player.x && bullet.y === player.y && player.active === true) {
+                getExplosion()
                 hitPlayer = true;
                 player.active = false;
 
@@ -185,10 +186,10 @@ function PlayingField(props: Props) {
     }
   }, [winner])
 
-  useEffect(() => {
-    setTimeout(() => {setExplosion(`url("/explosion.gif")`), 1000})
-    setExplosion("")
-  }, [explosion])
+  const getExplosion = () => {
+    setExplosion(`url("/explosion.gif")`)
+    setTimeout(() => {setExplosion("")}, 1500)
+  }
 
   function getColour(x: number, y: number) {
 
@@ -204,6 +205,7 @@ function PlayingField(props: Props) {
           height: "20px"
         }
       } else if (players.find((player) => player.x === x && player.y === y && player.active === false)) {
+        
         return {
           backgroundImage: explosion,
           backgroundSize: "cover",
@@ -284,7 +286,12 @@ function PlayingField(props: Props) {
               if(player.active === true && !player.shooter) {
                 player.score += 1
               }
-              
+
+              props.stompClient.publish({
+                destination: "/app/update-player-score",
+                body: JSON.stringify(player)
+              })
+
               props.stompClient.publish({
                 destination: "/app/new-round",
                 body: JSON.stringify(player)
@@ -326,25 +333,25 @@ function PlayingField(props: Props) {
       } else {
         console.log("no stomp client")
       }
-      setTimeout(() => {findWinner()}, 2000)
+      findWinner()
     }
   }
 
   const findWinner = () => {
-    let highestScoreName = ""; 
+    let highestScoreNames: string[] = []; 
     let highscore = 0;
     
     for (const player of players) {
       console.log("highscore: ", highscore)
       if (player.score > highscore) {
         highscore = player.score
-        highestScoreName = player.username
-        console.log("user: ", highestScoreName)
-      } else if (player.score == highscore) {
-        highestScoreName = highestScoreName + " and " + player.username;
+        highestScoreNames = [player.username]
+      } else if (player.score === highscore) {
+        highestScoreNames.push(player.username);
       }
     }
-    setWinner(highestScoreName)
+    const highestScoreString = highestScoreNames.join(" and ")
+    setWinner(highestScoreString)
   }
 
   const updateButtons = (value: boolean) => {
