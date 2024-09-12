@@ -14,7 +14,12 @@ function App() {
   const [stompClient, setStompClient] = useState<Client | null>(null)
 
   useEffect(() => {
-       
+    sessionStorage.clear();
+    if (stompClient) {
+      stompClient.publish({
+      destination: "/app/game-end",
+    });
+    }
     const socketUrl = process.env.NODE_ENV === 'development' 
       ? "http://localhost:8080/connect" 
       : "https://sea-turtle-app-m4dda.ondigitalocean.app/connect";

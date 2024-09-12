@@ -32,10 +32,14 @@ function Scoreboard(props: Props) {
         setPlayers(playerList); 
         console.log("player 1:", playerList[0]);
       });
+      const newGameSubscription = props.stompClient?.subscribe("/destroy/new-game", (message) => {
+        setPlayers(JSON.parse(message.body));
+      });
       
       return () => {
         subscription.unsubscribe();
         regSubscription.unsubscribe();
+        newGameSubscription.unsubscribe();
       };
     }
   }, [props.stompClient])
