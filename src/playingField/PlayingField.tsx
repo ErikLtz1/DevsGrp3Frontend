@@ -216,8 +216,8 @@ function PlayingField(props: Props) {
           backgroundImage: `url(${colour})`,
           backgroundSize: "cover",
           backgroundColor: "darkgrey",
-          width: "20px", 
-          height: "20px"
+          width: "25px", 
+          height: "25px"
         }
       } else if (players.find((player) => player.x === x && player.y === y && player.active === false)) {
         
@@ -225,24 +225,24 @@ function PlayingField(props: Props) {
           backgroundImage: explosion,
           backgroundSize: "cover",
           backgroundColor: "darkgrey",
-          width: "20px", 
-          height: "20px"
+          width: "25px", 
+          height: "25px"
         }
       } else if (checkForBullet(x, y)) {
         return {
           backgroundImage: `url("/bullet.png")`,
           backgroundSize: "cover",
           backgroundColor: "darkgrey",
-          width: "20px", 
-          height: "20px"
+          width: "25px", 
+          height: "25px"
         }
       } else {
         return { 
           backgroundImage: '',
           backgroundSize: "",
           backgroundColor: "darkgrey",
-          width: "20px", 
-          height: "20px"
+          width: "25px", 
+          height: "25px"
         }
       }
     }
