@@ -44,8 +44,8 @@ function PlayerButtons(props: Props) {
         });
         
         return () => {
-            subscription.unsubscribe();
-            subscriptionPlayers.unsubscribe();
+            subscription?.unsubscribe();
+            subscriptionPlayers?.unsubscribe();
         };
         }
     }, [props.stompClient])
@@ -74,8 +74,6 @@ function PlayerButtons(props: Props) {
                     sendUpdatedPlayerMovement()
                 }
             }
-        } else {
-            console.log("no player")
         }
     }
 

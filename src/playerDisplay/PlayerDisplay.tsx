@@ -26,13 +26,11 @@ function PlayerDisplay(props: Props) {
     if (props.stompClient) {
         const subscription = props.stompClient.subscribe("/destroy/player-registration", (message) => {
         const playerList = JSON.parse(message.body);
-        setPlayers(playerList); 
-        console.log("player 1:", playerList[0]);
-        
+        setPlayers(playerList);         
       });
       
       return () => {
-        subscription.unsubscribe();
+        subscription?.unsubscribe();
       };
     }
   }, [props.stompClient])

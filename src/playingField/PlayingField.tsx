@@ -47,6 +47,7 @@ function PlayingField(props: Props) {
   useEffect(() => {
     if (props.stompClient) {
         const subscription = props.stompClient.subscribe("/destroy/players", (message) => {
+          
           const playerList = JSON.parse(message.body);
           setPlayers(playerList);     
         });
@@ -55,23 +56,37 @@ function PlayingField(props: Props) {
           setBulletList((prevBullets) => [...prevBullets, bullet]);
         });
         const playerDisplaySubscription = props.stompClient.subscribe("/destroy/player-registration", (message) => {
-          console.log("player display sub")
+          
           const playerDisplayList = JSON.parse(message.body);
           gameStartFunction(playerDisplayList)
           setPlayers(playerDisplayList);
           setLocalPlayer(sessionStorage.getItem("username"))
         })
         const newGameSubscription = props.stompClient?.subscribe("/destroy/new-game", (message) => {
+          
           setPlayers(JSON.parse(message.body));
           setRoundNumber(0)
           roundEnd()
         });
+        const scoreSubscription = props.stompClient.subscribe("/destroy/player-scores", (message) => {
+          
+          setPlayers(JSON.parse(message.body)); 
+        });
+        const finalScoreConfirmationSubscription = props.stompClient?.subscribe("/destroy/final-score-confirmation", (message) => {
+          
+          if (message.body.length > 0) {
+            console.log("Players at final score confirmation:", players);
+            findWinner(JSON.parse(message.body));
+          }
+        });
 
       return () => {
-        subscription.unsubscribe();
-        bulletSubscription.unsubscribe();
-        playerDisplaySubscription.unsubscribe();
-        newGameSubscription.unsubscribe();
+        subscription?.unsubscribe();
+        bulletSubscription?.unsubscribe();
+        playerDisplaySubscription?.unsubscribe();
+        newGameSubscription?.unsubscribe();
+        scoreSubscription?.unsubscribe();
+        finalScoreConfirmationSubscription?.unsubscribe();
       };
     }
 
@@ -108,7 +123,6 @@ function PlayingField(props: Props) {
                 clonePlayers.forEach((shooter) => {
                   if (shooter.shooter === true) {
                     shooter.score += 1;
-                    console.log("shooter: ", shooter.score)
                     sendUpdatedPlayerScore(shooter)
                   }
                 })
@@ -137,7 +151,6 @@ function PlayingField(props: Props) {
   
   useEffect (() => {
     if (gameStart) {
-      console.log("stop")
       setRoundNumber((prevRoundNumber) => prevRoundNumber + 1)
     }
   }, [gameStart])
@@ -181,10 +194,10 @@ function PlayingField(props: Props) {
   }
 
   useEffect (() => {
-    console.log(winner)
+    console.log("winner updated", winner)
     if (winner !== "") {
       startConfetti()
-      setTimeout(() => {stopConfetti(), setWinner("");}, 10000)
+      setTimeout(() => {stopConfetti(), setWinner(""), newGame()}, 7000)
     }
   }, [winner])
 
@@ -271,11 +284,10 @@ function PlayingField(props: Props) {
   
   function roundEnd() {
     if (roundNumber < 4) {
-        console.log("round: ", roundNumber)
         setGameStart(false)
-        setRoundCount(15)
         setIsActive(false)
         setBulletList([])
+        setRoundCount(15)
         
         const clonePlayers = players.map((player: Player) => {
           return {...player}
@@ -285,14 +297,10 @@ function PlayingField(props: Props) {
           for(const player of clonePlayers) {
             if(player.username === localPlayer) {
               
-              if(player.active === true && !player.shooter) {
-                player.score += 1
+              if(player.active === true && !player.shooter && roundNumber !== 0) {
+                player.score += 1;
+                sendUpdatedPlayerScore(player);
               }
-
-              props.stompClient.publish({
-                destination: "/app/update-player-score",
-                body: JSON.stringify(player)
-              })
 
               props.stompClient.publish({
                 destination: "/app/new-round",
@@ -301,13 +309,24 @@ function PlayingField(props: Props) {
               break;
             }
           }
+
+          /****** ROUND START NOW WAITS FOR ALL PLAYERS TO BE PROCESSED BY SERVER ******/
+          const newRoundSubscription = props.stompClient.subscribe("/destroy/round-start-confirmation", (message) => {
+            const confirmation = message.body;
+            if (confirmation === "Round start") {
+              setTimeout(() => {
+                setCount(5);
+                setGameStart(true);
+                newRoundSubscription.unsubscribe();
+              }, 1000);
+            }
+          });
         } else {
           console.log("no stomp client")
         }
-        console.log("start")
-        setTimeout(() => {setCount(5), setGameStart(true)}, 2000)
         
     } else {
+      console.log("Ending round, current players: ", players);
       setGameStart(false)
       setIsActive(false)
       setBulletList([])
@@ -324,36 +343,41 @@ function PlayingField(props: Props) {
               player.score += 1
               sendUpdatedPlayerScore(player)
             }
-  
-            props.stompClient.publish({
-              destination: "/app/new-round",
-              body: JSON.stringify(player)
-            })
-            break;
+            if(!player.shooter) {
+              sendFinalScoreConfirmation(player.username)
+            }
+            
           }
         }
+        
       } else {
         console.log("no stomp client")
       }
-      setTimeout(() => {findWinner()}, 2000)
     }
   }
 
-  const findWinner = () => {
+  /****** WINNER NOW WAITS FOR ALL PLAYERS TO BE PROCESSED BY SERVER ******/
+  const findWinner = (finalPlayerList: Player[]) => {
+    console.log("Finding winner...");
+    console.log("Current players state: ", players);
+  
     let highestScoreNames: string[] = []; 
     let highscore = 0;
-    
-    for (const player of players) {
-      console.log("highscore: ", highscore)
+  
+    for(const player of finalPlayerList) {
+      console.log("Checking player: ", player.username, "Score: ", player.score);
+  
       if (player.score > highscore) {
-        highscore = player.score
-        highestScoreNames = [player.username]
+        highscore = player.score;
+        highestScoreNames = [player.username];
       } else if (player.score === highscore) {
         highestScoreNames.push(player.username);
       }
     }
-    const highestScoreString = highestScoreNames.join(" and ")
-    setWinner(highestScoreString)
+    
+    const highestScoreString = highestScoreNames.join(" and ");
+    console.log("Winners: ", highestScoreString);
+    setWinner(highestScoreString);
   }
 
   const updateButtons = (value: boolean) => {
@@ -368,6 +392,15 @@ function PlayingField(props: Props) {
       })
     }
   }
+  
+  function sendFinalScoreConfirmation(username: string) {
+    if (props.stompClient) {
+      props.stompClient.publish({
+        destination: "/app/final-score",
+        body: JSON.stringify(username)
+      })
+    }
+  }
 
   return (
     <div className="playingFieldOuterDiv">
@@ -376,8 +409,7 @@ function PlayingField(props: Props) {
                         <h2>{count > 0 ? "Round " + roundNumber + "\nbegins in " + count + " seconds." : "Destroy!"}</h2>
                         <h2>{ count === 0 ? "Time left: " + roundCount : null }</h2> 
                       </div> : null}
-        { winner !== "" ? <div className="winnerDiv"><h1 className="winner" >{  "The Winner is " + winner }</h1> </div> : null}
-        { roundNumber === 4 ? <div><button onClick={() => newGame()}>New Game?</button></div> : null} 
+        { winner !== "" ? <div className="winnerDiv"><h1 className="winner" >{"The Winner is " + winner + "\nA new game will start in 5 seconds!"}</h1> </div> : null}
         <div className="playingFieldDiv">
           { gridList.map((cell: Cell, index) => (
             <div 
@@ -397,4 +429,5 @@ function PlayingField(props: Props) {
 }
 
 export default PlayingField
+
 
